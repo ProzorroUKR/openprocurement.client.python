@@ -113,6 +113,14 @@ class TendersClient(APIBaseClient):
     def create_question(self, tender, question):
         return self._create_tender_resource_item(tender, question, 'questions')
 
+    def change_ownership(self, tender, transfer):
+        try:
+            self._create_tender_resource_item(tender, transfer, 'ownership')
+        except InvalidResponse as e:
+            if e.status_code == 200:
+                return munchify(loads(e.response.text))
+            raise e
+
     def create_bid(self, tender, bid):
         return self._create_tender_resource_item(tender, bid, 'bids')
 
@@ -136,6 +144,17 @@ class TendersClient(APIBaseClient):
             '{}/{}/{}'.format(self.prefix_path, tender.data.id,
                               'awards/{0}/complaints'.format(award_id)),
             complaint,
+            headers={'X-Access-Token': self._get_access_token(tender)}
+        )
+
+    def create_item(self, tender, item):
+        return self._create_tender_resource_item(tender, item, "items")
+
+    def create_prolongation(self, tender, contract_id, prolongation_data):
+        return self._create_resource_item(
+            '{}/{}/{}'.format(self.prefix_path, tender.data.id,
+                              'contracts/{}/prolongations'.format(contract_id)),
+            prolongation_data,
             headers={'X-Access-Token': self._get_access_token(tender)}
         )
 
@@ -292,12 +311,50 @@ class TendersClient(APIBaseClient):
     def patch_contract(self, tender, contract):
         return self._patch_obj_resource_item(tender, contract, 'contracts')
 
+    def patch_item(self, tender, item):
+        return self._patch_obj_resource_item(tender, item, 'items')
+
+    def patch_agreement(self, tender, agreement):
+        return self._patch_obj_resource_item(tender, agreement, 'agreements')
+
+    def patch_agreement_contract(self, tender, agreement_id, contract):
+        return self._patch_resource_item(
+             '{}/{}/agreements/{}/contracts/{}'.format(
+                self.prefix_path, tender.data.id, agreement_id, contract.data.id
+            ),
+            payload=contract,
+            headers={'X-Access-Token': self._get_access_token(tender)}
+        )
+
+    def patch_auction(self, tender, auction):
+        return self._patch_obj_resource_item(tender, auction, 'auctions')
+
+    def patch_prolongation(self, tender, contract_id, prolongation_id, data):
+        return self._patch_resource_item(
+            '{}/{}/contracts/{}/prolongations/{}'.format(
+                self.prefix_path, tender.data.id, contract_id,
+                                 prolongation_id),
+            payload=data,
+            headers={'X-Access-Token': self._get_access_token(tender)}
+        )
+
     def patch_contract_document(self, tender, document_data,
                                 contract_id, document_id):
         return self._patch_resource_item(
             '{}/{}/{}/{}/documents/{}'.format(
                 self.prefix_path, tender.data.id, 'contracts',
                 contract_id, document_id
+            ),
+            payload=document_data,
+            headers={'X-Access-Token': self._get_access_token(tender)}
+        )
+
+    def patch_prolongation_document(self, tender, document_data,
+                                contract_id, prolongation_id):
+        return self._patch_resource_item(
+            '{}/{}/contracts/{}/prolongations/{}/documents/{}'.format(
+                self.prefix_path, tender.data.id, contract_id,
+                prolongation_id, document_data.data.id
             ),
             payload=document_data,
             headers={'X-Access-Token': self._get_access_token(tender)}
@@ -448,6 +505,39 @@ class TendersClient(APIBaseClient):
                 tender.data.id,
                 contract_id
             ),
+            file_=file_,
+            headers={'X-Access-Token': self._get_access_token(tender)},
+            use_ds_client=use_ds_client,
+            doc_registration=doc_registration
+        )
+
+    @verify_file
+    def upload_auction_document(self, file_, tender, auction_id, doc_type,
+                                 use_ds_client=True, doc_registration=True):
+        return self._upload_resource_file(
+            '{}/{}/auctions/{}/documents'.format(
+                self.prefix_path,
+                tender.data.id,
+                auction_id
+            ),
+            file_=file_,
+            doc_type=doc_type,
+            headers={'X-Access-Token': self._get_access_token(tender)},
+            use_ds_client=use_ds_client,
+            doc_registration=doc_registration
+        )
+
+
+    @verify_file
+    def upload_prolongation_document(self, file_, tender, contract_id,
+                                        prolongation_id, use_ds_client=True,
+                                        doc_registration=True):
+        return self._upload_resource_file(
+            '{}/{}/contracts/{}/prolongations/{}/documents'.format(
+                self.prefix_path,
+                tender.data.id,
+                contract_id,
+                prolongation_id),
             file_=file_,
             headers={'X-Access-Token': self._get_access_token(tender)},
             use_ds_client=use_ds_client,

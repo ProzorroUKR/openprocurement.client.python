@@ -19,6 +19,14 @@ class ContractingClient(APIBaseClient):
     def create_contract(self, contract):
         return self._create_resource_item(self.prefix_path, contract)
 
+    def change_ownership(self, tender, access_token, transfer):
+        try:
+            self._create_contract_resource_item(tender, access_token, transfer, 'ownership')
+        except InvalidResponse as e:
+            if e.status_code == 200:
+                return munchify(loads(e.response.text))
+            raise e
+
     def get_contract(self, id):
         return self._get_resource_item('{}/{}'.format(self.prefix_path, id))
 
@@ -70,6 +78,14 @@ class ContractingClient(APIBaseClient):
         return self._patch_resource_item(
             '{}/{}/{}/{}'.format(self.prefix_path, contract_id, 'changes',
                                  change_id),
+            payload=data,
+            headers={'X-Access-Token': access_token}
+        )
+
+    def patch_milestone(self, contract_id, access_token, data):
+        return self._patch_resource_item(
+            '{}/{}/{}/{}'.format(self.prefix_path, contract_id, 'milestones',
+                                data['data']['id']),
             payload=data,
             headers={'X-Access-Token': access_token}
         )
