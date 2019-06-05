@@ -58,7 +58,7 @@ class APIBaseClient(APITemplateClient):
         # To perform some operations (e.g. create a tender)
         # we first need to obtain a cookie. For that reason,
         # here we send a HEAD request to a neutral URL.
-        self._obtain_cookie()
+        #self._obtain_cookie()
 
     def _obtain_cookie(self):
         response = self.session.request('HEAD', self.prefix_path)
