@@ -2,7 +2,6 @@
 import logging
 
 from retrying import retry
-from zope.deprecation import deprecation
 
 from openprocurement_client.clients import (APIResourceClient,
                                             APIResourceClientSync)
@@ -23,7 +22,6 @@ class TendersClient(APIResourceClient):
     #                         CREATE ITEM API METHODS
     ###########################################################################
 
-    @deprecation.deprecate("use create_resource_item_subitem instead.")
     def _create_tender_resource_item(self, tender, item_obj, items_name):
         return self._create_resource_item(
             '{}/{}/{}'.format(self.prefix_path, tender.data.id, items_name),
@@ -90,7 +88,6 @@ class TendersClient(APIResourceClient):
     #                        GET ITEMS LIST API METHODS
     ###########################################################################
 
-    @deprecation.deprecate("use _get_resource_item instead.")
     def _get_tender_resource_list(self, tender, items_name):
         return self._get_resource_item(
             '{}/{}/{}'.format(self.prefix_path, tender.data.id, items_name),
@@ -133,7 +130,6 @@ class TendersClient(APIResourceClient):
     #                           GET ITEM API METHODS
     ###########################################################################
 
-    @deprecation.deprecate("use get_resource_item_subitem instead.")
     def _get_tender_resource_item(self, tender, item_id, items_name,
                                   access_token=None):
         access_token = access_token or self._get_access_token(tender)

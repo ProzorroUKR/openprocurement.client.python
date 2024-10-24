@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from zope.deprecation import deprecation
-
 from openprocurement_client.clients import APIResourceClient
 from openprocurement_client.constants import (
     CHANGES,

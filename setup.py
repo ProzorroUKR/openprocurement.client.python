@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version = '2.1dp'
+version = '2.2.0+dp'
 
 install_requires = [
     'gevent',
@@ -10,8 +10,6 @@ install_requires = [
     'simplejson',
     'requests',
     'python-magic',
-    'zope.deferredimport',
-    'zope.deprecation',
 ]
 
 tests_require = [
